@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#E3E8DB"/>
+  <rect x="250" y="100" width="700" height="430" rx="32" fill="#F6F8F1" stroke="rgba(23,27,20,0.1)" stroke-width="1"/>
+  <text x="600" y="280" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="72" font-weight="900" fill="#171B14" letter-spacing="-2">학습 </text>
+  <text x="720" y="280" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="72" font-weight="900" fill="#BE3A2B" letter-spacing="-2">카드</text>
+  <text x="600" y="340" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="28" fill="#79836F" font-weight="500">SM-2 간격반복 플래시카드</text>
+  <text x="600" y="380" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="28" fill="#79836F" font-weight="500">정보처리기사 실기 시험 대비</text>
+  <rect x="440" y="410" width="320" height="44" rx="22" fill="#171B14"/>
+  <text x="600" y="439" text-anchor="middle" font-family="monospace" font-size="18" fill="#F6F8F1" font-weight="700">flashcard · sm-2</text>
+</svg>

@@ -1,0 +1,16 @@
+[
+  {
+    "id": "sample-1",
+    "deck": "예제",
+    "front": "SM-2 알고리즘에서 easiness factor의 최소값은?",
+    "back": "1.3 — 이보다 낮아지면 1.3으로 고정된다.",
+    "tags": ["학습법"]
+  },
+  {
+    "id": "sample-2",
+    "deck": "예제",
+    "front": "간격 반복(Spaced Repetition)의 핵심 원리는?",
+    "back": "망각 곡선 직전에 복습하면 기억 유지 기간이 점점 늘어난다.",
+    "tags": ["학습법"]
+  }
+]

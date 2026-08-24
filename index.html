@@ -212,7 +212,7 @@ async function saveGistConfig(){
       setSyncStatus('Gist 생성 중...');
       const res=await fetch('https://api.github.com/gists',{
         method:'POST',
-        headers:{'Authorization':'token '+pat,'Content-Type':'application/json'},
+        headers:{'Authorization':'Bearer '+pat,'Content-Type':'application/json'},
         body:JSON.stringify({description:'Flashcard SM-2 학습 상태',public:false,files:{'flashcard-state.json':{content:JSON.stringify(loadState())}}})
       });
       if(!res.ok) throw new Error(res.status);
@@ -224,44 +224,47 @@ async function saveGistConfig(){
   }
   try{
     setSyncStatus('확인 중...');
-    const res=await fetch('https://api.github.com/gists/'+id,{headers:{'Authorization':'token '+pat}});
+    const res=await fetch('https://api.github.com/gists/'+id,{headers:{'Authorization':'Bearer '+pat}});
     if(!res.ok) throw new Error(res.status);
     localStorage.setItem(CONFIG_KEY, JSON.stringify({pat,gistId:id}));
     setSyncStatus('연결됨',true);
-    syncToGist();
+    await syncFromGist();
+    if(currentDeck) { buildQueue(); showCard(); } else { renderDecks(); }
   }catch(e){ setSyncStatus('연결 실패 ('+e.message+')',false); }
 }
 async function syncToGist(){
   const c=loadGistConfig();
   if(!c.pat||!c.gistId) return;
   try{
-    await fetch('https://api.github.com/gists/'+c.gistId,{
+    const res=await fetch('https://api.github.com/gists/'+c.gistId,{
       method:'PATCH',
-      headers:{'Authorization':'token '+c.pat,'Content-Type':'application/json'},
+      headers:{'Authorization':'Bearer '+c.pat,'Content-Type':'application/json'},
       body:JSON.stringify({files:{'flashcard-state.json':{content:JSON.stringify(loadState())}}})
     });
+    if(!res.ok) throw new Error(res.status);
     setSyncStatus('동기화됨',true);
-  }catch{ setSyncStatus('동기화 실패',false); }
+  }catch(e){ setSyncStatus('동기화 실패',false); }
 }
 async function syncFromGist(){
   const c=loadGistConfig();
-  if(!c.pat||!c.gistId) return;
+  if(!c.pat||!c.gistId){ setSyncStatus(''); return; }
   try{
-    const res=await fetch('https://api.github.com/gists/'+c.gistId,{headers:{'Authorization':'token '+c.pat}});
-    if(!res.ok) return;
+    setSyncStatus('불러오는 중...');
+    const res=await fetch('https://api.github.com/gists/'+c.gistId,{headers:{'Authorization':'Bearer '+c.pat}});
+    if(!res.ok) throw new Error(res.status);
     const data=await res.json();
     const file=data.files['flashcard-state.json'];
-    if(file){
+    if(file && file.content){
       const remote=JSON.parse(file.content);
       const local=loadState();
-      const merged={...local,...remote};
+      const merged={...remote};
       Object.keys(local).forEach(k=>{
-        if(remote[k] && local[k] && local[k].due > remote[k].due) merged[k]=local[k];
+        if(!merged[k] || (local[k] && local[k].due > merged[k].due)) merged[k]=local[k];
       });
       localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
-      setSyncStatus('동기화됨',true);
     }
-  }catch{ setSyncStatus('오프라인'); }
+    setSyncStatus('동기화됨',true);
+  }catch(e){ setSyncStatus('동기화 실패 ('+e.message+')',false); }
 }
 
 // ── SM-2 ──

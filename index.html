@@ -1,188 +1,440 @@
 <!doctype html>
 <html lang="ko">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Flashcards</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1">
+<meta name="theme-color" content="#E3E8DB">
+<title>학습 카드</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@500;700;900&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#f5f5f0;--card:#fff;--ink:#1f2937;--muted:#6b7280;--accent:#2563eb;--good:#16a34a;--hard:#ea580c;--again:#dc2626;--border:#e5e7eb;--radius:16px}
-*{box-sizing:border-box;margin:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo',sans-serif;background:var(--bg);color:var(--ink);min-height:100dvh;display:flex;flex-direction:column;align-items:center;padding:20px}
-header{width:100%;max-width:600px;display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}
-h1{font-size:1.4rem;font-weight:700}
-.stats{font-size:.85rem;color:var(--muted)}
-.deck-filter{margin-bottom:16px;display:flex;gap:8px;flex-wrap:wrap}
-.deck-filter button{padding:4px 12px;border-radius:999px;border:1px solid var(--border);background:var(--card);cursor:pointer;font-size:.8rem}
-.deck-filter button.active{background:var(--accent);color:#fff;border-color:var(--accent)}
-.card-container{width:100%;max-width:600px;perspective:1000px}
-.card{position:relative;width:100%;min-height:300px;border-radius:var(--radius);background:var(--card);border:1px solid var(--border);box-shadow:0 4px 24px rgba(0,0,0,.06);cursor:pointer;display:flex;align-items:center;justify-content:center;padding:40px;text-align:center;font-size:1.2rem;line-height:1.6;transition:transform .4s;transform-style:preserve-3d}
-.card.flipped{transform:rotateY(180deg)}
-.card-face{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:40px;backface-visibility:hidden;border-radius:var(--radius)}
-.card-back{transform:rotateY(180deg);background:#fafafa;border-radius:var(--radius)}
-.card-label{position:absolute;top:16px;left:20px;font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
-.buttons{width:100%;max-width:600px;display:flex;gap:12px;margin-top:20px}
-.buttons button{flex:1;padding:14px;border:none;border-radius:12px;font-size:.9rem;font-weight:600;cursor:pointer;color:#fff;transition:opacity .2s}
-.buttons button:active{opacity:.7}
-.btn-again{background:var(--again)}
-.btn-hard{background:var(--hard)}
-.btn-good{background:var(--good)}
-.btn-easy{background:var(--accent)}
-.empty{text-align:center;color:var(--muted);margin-top:80px;font-size:1.1rem}
-.progress{width:100%;max-width:600px;height:4px;background:var(--border);border-radius:2px;margin-bottom:16px;overflow:hidden}
-.progress-bar{height:100%;background:var(--accent);transition:width .3s}
-.tag{display:inline-block;background:#eef4ff;color:var(--accent);padding:2px 8px;border-radius:6px;font-size:.7rem;margin:2px}
+:root{
+  --paper:#E3E8DB;--card:#F6F8F1;--ink:#171B14;--mark:#BE3A2B;
+  --omr:#4E6B53;--muted:#79836F;--line:rgba(23,27,20,.14);
+  --kor:'Gothic A1','Pretendard',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--kor);font-weight:500;font-size:18px;-webkit-font-smoothing:antialiased;overscroll-behavior-y:contain}
+.app{max-width:600px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;padding:28px 22px calc(28px + env(safe-area-inset-bottom))}
+
+/* ── header (공통) ── */
+header{margin-bottom:28px}
+.eyebrow{font-family:var(--mono);font-size:14px;letter-spacing:.12em;text-transform:uppercase;color:var(--omr);display:flex;justify-content:space-between;align-items:center}
+h1{font-weight:900;font-size:34px;letter-spacing:-.03em;margin-top:10px;line-height:1.2}
+h1 em{font-style:normal;color:var(--mark)}
+
+/* ── home: deck list ── */
+#deckList{display:flex;flex-direction:column;gap:16px}
+.deck-card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:28px;cursor:pointer;transition:transform .12s;box-shadow:0 1px 0 rgba(23,27,20,.06),0 6px 16px -12px rgba(23,27,20,.3)}
+.deck-card:active{transform:scale(.98)}
+.deck-name{font-weight:900;font-size:26px;letter-spacing:-.02em}
+.deck-tags{font-size:17px;color:var(--muted);margin-top:10px;line-height:1.6}
+.deck-meta{font-family:var(--mono);font-size:15px;color:var(--muted);margin-top:18px;display:flex;justify-content:space-between}
+.deck-progress{height:6px;background:var(--line);border-radius:3px;margin-top:12px;overflow:hidden}
+.deck-bar{height:100%;background:var(--omr);border-radius:3px;transition:width .3s}
+
+/* ── study: layout ── */
+#studyView{display:none;flex-direction:column;flex:1}
+#studyView header{margin-bottom:0}
+
+/* ── study: chips ── */
+.chips{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.chip{font-family:var(--kor);font-weight:700;font-size:16px;padding:10px 18px;border-radius:999px;border:1.5px solid var(--line);background:transparent;color:var(--muted);cursor:pointer;transition:.15s}
+.chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--card)}
+.chip.hotchip{border-color:var(--mark);color:var(--mark)}
+.chip.hotchip[aria-pressed="true"]{background:var(--mark);border-color:var(--mark);color:#fff}
+
+/* ── study: progress ── */
+.meter{display:flex;justify-content:space-between;align-items:baseline;font-family:var(--mono);font-size:16px;color:var(--muted);letter-spacing:.04em;margin-top:24px;padding-bottom:10px}
+.meter b{font-size:24px;color:var(--ink);font-weight:600}
+.progress-wrap{height:6px;background:var(--line);border-radius:3px;overflow:hidden}
+.progress-bar{height:100%;background:var(--omr);border-radius:3px;transition:width .3s}
+
+/* ── study: card ── */
+.stage{perspective:1400px;flex:1;min-height:380px;display:flex;margin-top:20px}
+.card{position:relative;width:100%;transform-style:preserve-3d;transition:transform .42s cubic-bezier(.3,.8,.3,1);cursor:pointer}
+.card.flip{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;background:var(--card);border-radius:22px;border:1px solid var(--line);box-shadow:0 1px 0 rgba(23,27,20,.06),0 10px 24px -18px rgba(23,27,20,.5);display:flex;flex-direction:column;overflow:hidden}
+.back{transform:rotateY(180deg)}
+.facehead{display:flex;justify-content:space-between;align-items:center;padding:20px 26px 0;font-family:var(--mono);font-size:14px;letter-spacing:.1em;color:var(--muted)}
+.facehead .hotmark{color:var(--mark);font-weight:600}
+.facebody{flex:1;overflow-y:auto;padding:20px 26px 24px;-webkit-overflow-scrolling:touch}
+.q{font-weight:900;font-size:28px;line-height:1.45;letter-spacing:-.02em}
+.alist{list-style:none;display:flex;flex-direction:column;gap:14px}
+.alist li{font-size:19px;line-height:1.6;font-weight:500;padding-left:20px;position:relative;letter-spacing:-.01em}
+.alist li::before{content:"";position:absolute;left:0;top:.68em;width:8px;height:8px;border-radius:50%;background:var(--omr)}
+.alist li code{font-family:var(--mono);font-size:16px;font-weight:600;background:rgba(78,107,83,.13);color:#31462F;padding:2px 7px;border-radius:6px;white-space:nowrap}
+.alist li.star::before{background:var(--mark)}
+.facefoot{padding:0 26px 18px;font-family:var(--mono);font-size:14px;color:var(--muted);letter-spacing:.1em}
+
+/* ── study: grade buttons ── */
+.grade-row{display:flex;gap:12px;margin-top:20px}
+.grade-btn{flex:1;font-family:var(--kor);font-weight:900;font-size:18px;padding:20px 10px;border-radius:16px;border:2px solid;cursor:pointer;transition:.12s;letter-spacing:-.01em;background:transparent}
+.grade-btn:active{transform:translateY(1px)}
+.grade-again{border-color:var(--mark);color:var(--mark)}
+.grade-hard{border-color:#c17a2e;color:#c17a2e}
+.grade-good{border-color:var(--omr);color:var(--omr)}
+.grade-easy{background:var(--ink);color:var(--card);border-color:var(--ink)}
+
+/* ── back link ── */
+.back-link{font-family:var(--kor);font-weight:700;font-size:17px;color:var(--omr);background:none;border:none;cursor:pointer;padding:6px 0;letter-spacing:-.01em}
+.back-link:hover{text-decoration:underline}
+
+/* ── empty state ── */
+.empty{text-align:center;padding:80px 20px;color:var(--muted);font-size:22px;line-height:1.6}
+
+/* ── settings ── */
+.settings{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:28px;margin-bottom:24px}
+.settings label{display:block;font-weight:700;font-size:16px;margin-bottom:8px}
+.settings input{width:100%;font-family:var(--mono);font-size:15px;padding:14px 16px;border:1.5px solid var(--line);border-radius:12px;background:var(--paper);color:var(--ink)}
+.settings input:focus{outline:none;border-color:var(--omr)}
+.settings small{display:block;font-size:14px;color:var(--muted);margin-top:6px;margin-bottom:22px;line-height:1.5}
+.setting-row{display:flex;gap:10px;align-items:center}
+.setting-row input{margin-bottom:0}
+.sync-badge{font-family:var(--mono);font-size:13px;color:var(--muted);letter-spacing:.04em}
+.sync-badge.ok{color:var(--omr)}
+.sync-badge.err{color:var(--mark)}
+
+:focus-visible{outline:2.5px solid var(--mark);outline-offset:3px}
+@media(prefers-reduced-motion:reduce){.card{transition:none}}
+@media(max-height:680px){.q{font-size:22px}.stage{min-height:300px}}
 </style>
 </head>
 <body>
-<header>
-  <h1>Flashcards</h1>
-  <div class="stats" id="stats"></div>
-</header>
-<div class="deck-filter" id="deckFilter"></div>
-<div class="progress"><div class="progress-bar" id="progressBar"></div></div>
-<div class="card-container">
-  <div class="card" id="card" onclick="flip()">
-    <div class="card-face" id="front"></div>
-    <div class="card-face card-back" id="back"></div>
+<div class="app">
+  <!-- ── Home View ── -->
+  <div id="homeView">
+    <header>
+      <div class="eyebrow">
+        <span>flashcard · sm-2 <span class="sync-badge" id="syncBadge"></span></span>
+        <button class="back-link" onclick="toggleSettings()">설정</button>
+      </div>
+      <h1>학습 <em>카드</em></h1>
+    </header>
+    <div id="settingsPanel" style="display:none">
+      <div class="settings">
+        <label>GitHub Personal Access Token</label>
+        <input type="password" id="patInput" placeholder="ghp_xxxxxxxxxxxx">
+        <small>GitHub → Settings → Developer settings → Personal access tokens (classic) → gist 권한 체크</small>
+        <label>Gist ID</label>
+        <div class="setting-row">
+          <input type="text" id="gistIdInput" placeholder="비워두면 새로 생성">
+        </div>
+        <small>기존 Gist URL의 마지막 부분 (예: a1b2c3d4e5f6)</small>
+        <div class="setting-row">
+          <button class="grade-btn grade-easy" style="flex:none;padding:14px 32px;font-size:16px" onclick="saveGistConfig()">연결</button>
+          <span class="sync-badge" id="settingsStatus"></span>
+        </div>
+      </div>
+    </div>
+    <div id="deckList"></div>
   </div>
-</div>
-<div class="buttons" id="buttons" style="display:none">
-  <button class="btn-again" onclick="answer(0)">Again</button>
-  <button class="btn-hard" onclick="answer(3)">Hard</button>
-  <button class="btn-good" onclick="answer(4)">Good</button>
-  <button class="btn-easy" onclick="answer(5)">Easy</button>
-</div>
-<div class="empty" id="empty" style="display:none">
-  오늘 복습할 카드가 없습니다 🎉
+
+  <!-- ── Study View ── -->
+  <div id="studyView">
+    <header>
+      <div class="eyebrow">
+        <button class="back-link" onclick="showHome()">← 목록</button>
+        <span id="saveState"></span>
+      </div>
+      <h1 id="deckTitle">—</h1>
+      <div class="chips" id="chips"></div>
+    </header>
+
+    <div class="meter">
+      <span><b id="remaining">0</b>장 남음</span>
+      <span id="statsText">총 0장</span>
+    </div>
+    <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+
+    <div class="stage" id="stage">
+      <div class="card" id="card" role="button" tabindex="0" aria-label="카드 뒤집기">
+        <div class="face front">
+          <div class="facehead"><span id="tagF">—</span></div>
+          <div class="facebody"><div class="q" id="qText">—</div></div>
+          <div class="facefoot">탭하면 정답</div>
+        </div>
+        <div class="face back">
+          <div class="facehead"><span id="tagB">—</span></div>
+          <div class="facebody"><ul class="alist" id="aList"></ul></div>
+          <div class="facefoot">탭하면 문제</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grade-row" id="gradeButtons" style="display:none">
+      <button class="grade-btn grade-again" onclick="answer(0)">다시</button>
+      <button class="grade-btn grade-hard" onclick="answer(3)">어려움</button>
+      <button class="grade-btn grade-good" onclick="answer(4)">알겠음</button>
+      <button class="grade-btn grade-easy" onclick="answer(5)">쉬움</button>
+    </div>
+    <div class="empty" id="emptyMsg" style="display:none">오늘 복습할 카드가 없습니다 🎉</div>
+  </div>
 </div>
 
 <script>
-// ── SM-2 구현 ──
 const STORAGE_KEY = 'flashcard-sm2-state';
-let allCards = [];
-let queue = [];
-let currentCard = null;
-let currentDeck = null;
+let allCards = [], queue = [], currentCard = null, currentDeck = null, currentTag = null;
+const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 
-function loadState() {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch { return {}; }
+// ── Gist Sync ──
+const CONFIG_KEY = 'flashcard-gist-config';
+let syncTimer = null;
+function loadGistConfig(){ try{ return JSON.parse(localStorage.getItem(CONFIG_KEY))||{}; }catch{ return {}; } }
+function setSyncStatus(msg, ok){
+  const b = document.getElementById('syncBadge');
+  const s = document.getElementById('settingsStatus');
+  if(b){ b.textContent=msg; b.className='sync-badge'+(ok===true?' ok':ok===false?' err':''); }
+  if(s){ s.textContent=msg; s.className='sync-badge'+(ok===true?' ok':ok===false?' err':''); }
+  const ss=document.getElementById('saveState');
+  if(ss) ss.textContent=msg;
 }
-function saveState(state) { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+function toggleSettings(){
+  const el=document.getElementById('settingsPanel');
+  const show=el.style.display==='none';
+  el.style.display=show?'':'none';
+  if(show){
+    const c=loadGistConfig();
+    document.getElementById('patInput').value=c.pat||'';
+    document.getElementById('gistIdInput').value=c.gistId||'';
+  }
+}
+async function saveGistConfig(){
+  const pat=document.getElementById('patInput').value.trim();
+  const gistId=document.getElementById('gistIdInput').value.trim();
+  if(!pat){ setSyncStatus('토큰을 입력하세요',false); return; }
+  let id=gistId;
+  if(!id){
+    try{
+      setSyncStatus('Gist 생성 중...');
+      const res=await fetch('https://api.github.com/gists',{
+        method:'POST',
+        headers:{'Authorization':'token '+pat,'Content-Type':'application/json'},
+        body:JSON.stringify({description:'Flashcard SM-2 학습 상태',public:false,files:{'flashcard-state.json':{content:JSON.stringify(loadState())}}})
+      });
+      if(!res.ok) throw new Error(res.status);
+      const data=await res.json();
+      id=data.id;
+      document.getElementById('gistIdInput').value=id;
+      setSyncStatus('생성 완료',true);
+    }catch(e){ setSyncStatus('생성 실패 ('+e.message+')',false); return; }
+  }
+  try{
+    setSyncStatus('확인 중...');
+    const res=await fetch('https://api.github.com/gists/'+id,{headers:{'Authorization':'token '+pat}});
+    if(!res.ok) throw new Error(res.status);
+    localStorage.setItem(CONFIG_KEY, JSON.stringify({pat,gistId:id}));
+    setSyncStatus('연결됨',true);
+    syncToGist();
+  }catch(e){ setSyncStatus('연결 실패 ('+e.message+')',false); }
+}
+async function syncToGist(){
+  const c=loadGistConfig();
+  if(!c.pat||!c.gistId) return;
+  try{
+    await fetch('https://api.github.com/gists/'+c.gistId,{
+      method:'PATCH',
+      headers:{'Authorization':'token '+c.pat,'Content-Type':'application/json'},
+      body:JSON.stringify({files:{'flashcard-state.json':{content:JSON.stringify(loadState())}}})
+    });
+    setSyncStatus('동기화됨',true);
+  }catch{ setSyncStatus('동기화 실패',false); }
+}
+async function syncFromGist(){
+  const c=loadGistConfig();
+  if(!c.pat||!c.gistId) return;
+  try{
+    const res=await fetch('https://api.github.com/gists/'+c.gistId,{headers:{'Authorization':'token '+c.pat}});
+    if(!res.ok) return;
+    const data=await res.json();
+    const file=data.files['flashcard-state.json'];
+    if(file){
+      const remote=JSON.parse(file.content);
+      const local=loadState();
+      const merged={...local,...remote};
+      Object.keys(local).forEach(k=>{
+        if(remote[k] && local[k] && local[k].due > remote[k].due) merged[k]=local[k];
+      });
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+      setSyncStatus('동기화됨',true);
+    }
+  }catch{ setSyncStatus('오프라인'); }
+}
 
-function sm2(item, grade) {
-  // grade: 0=again, 3=hard, 4=good, 5=easy
-  let { ef, interval, repetition } = item;
-  if (grade < 3) {
-    repetition = 0;
-    interval = 1;
-  } else {
-    if (repetition === 0) interval = 1;
-    else if (repetition === 1) interval = 6;
-    else interval = Math.round(interval * ef);
+// ── SM-2 ──
+function loadState(){ try{ return JSON.parse(localStorage.getItem(STORAGE_KEY))||{}; }catch{ return {}; } }
+function saveState(s){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
+  clearTimeout(syncTimer);
+  syncTimer=setTimeout(syncToGist, 2000);
+}
+function getCardState(state, id){ return state[id] || { ef:2.5, interval:0, repetition:0, due:0 }; }
+function isDue(state, id){ return getCardState(state, id).due <= Date.now(); }
+function sm2(item, grade){
+  let {ef,interval,repetition} = item;
+  if(grade<3){ repetition=0; interval=1; }
+  else{
+    if(repetition===0) interval=1;
+    else if(repetition===1) interval=6;
+    else interval=Math.round(interval*ef);
     repetition++;
   }
-  ef = Math.max(1.3, ef + (0.1 - (5 - grade) * (0.08 + (5 - grade) * 0.02)));
-  const due = Date.now() + interval * 86400000;
-  return { ef, interval, repetition, due };
+  ef = Math.max(1.3, ef+(0.1-(5-grade)*(0.08+(5-grade)*0.02)));
+  return { ef, interval, repetition, due: Date.now()+interval*86400000 };
 }
 
-function getCardState(state, id) {
-  return state[id] || { ef: 2.5, interval: 0, repetition: 0, due: 0 };
-}
-
-function isDue(state, id) {
-  const s = getCardState(state, id);
-  return s.due <= Date.now();
-}
-
-// ── UI ──
-async function init() {
-  const resp = await fetch('cards.json');
-  allCards = await resp.json();
+// ── Home ──
+function showHome(){
+  document.getElementById('homeView').style.display='';
+  document.getElementById('studyView').style.display='none';
+  currentDeck=null; currentTag=null;
   renderDecks();
-  buildQueue();
-  showNext();
 }
-
-function renderDecks() {
-  const decks = [...new Set(allCards.map(c => c.deck))];
-  const el = document.getElementById('deckFilter');
-  el.innerHTML = `<button class="${!currentDeck ? 'active' : ''}" onclick="filterDeck(null)">전체</button>` +
-    decks.map(d => `<button class="${currentDeck === d ? 'active' : ''}" onclick="filterDeck('${d}')">${d}</button>`).join('');
-}
-
-function filterDeck(deck) {
-  currentDeck = deck;
-  renderDecks();
-  buildQueue();
-  showNext();
-}
-
-function buildQueue() {
+function renderDecks(){
   const state = loadState();
-  const pool = currentDeck ? allCards.filter(c => c.deck === currentDeck) : allCards;
-  queue = pool.filter(c => isDue(state, c.id));
-  // 새 카드 + due 카드 섞기
-  queue.sort(() => Math.random() - 0.5);
-  updateStats();
+  const deckNames = [...new Set(allCards.map(c=>c.deck))];
+  document.getElementById('deckList').innerHTML = deckNames.map(name=>{
+    const cards = allCards.filter(c=>c.deck===name);
+    const total = cards.length;
+    const due = cards.filter(c=>isDue(state,c.id)).length;
+    const pct = total>0 ? Math.round((total-due)/total*100) : 0;
+    const tags = [...new Set(cards.flatMap(c=>c.tags))];
+    return `<div class="deck-card" onclick="openDeck('${name.replace(/'/g,"\\'")}')">
+      <div class="deck-name">${name}</div>
+      <div class="deck-tags">${tags.join(' · ')}</div>
+      <div class="deck-meta"><span>${total}장 · 복습 ${due}장</span><span>${pct}% 학습</span></div>
+      <div class="deck-progress"><div class="deck-bar" style="width:${pct}%"></div></div>
+    </div>`;
+  }).join('');
 }
 
-function updateStats() {
-  const state = loadState();
-  const total = allCards.length;
-  const reviewed = Object.keys(state).length;
-  const due = allCards.filter(c => isDue(state, c.id)).length;
-  document.getElementById('stats').textContent = `${due}장 남음 / 총 ${total}장`;
-  const done = total > 0 ? ((total - due) / total) * 100 : 0;
-  document.getElementById('progressBar').style.width = done + '%';
+// ── Study ──
+function openDeck(name){
+  currentDeck=name; currentTag=null;
+  document.getElementById('homeView').style.display='none';
+  document.getElementById('studyView').style.display='flex';
+  document.getElementById('deckTitle').textContent=name;
+  renderChips();
+  buildQueue();
+  showCard();
 }
+function renderChips(){
+  const cards = allCards.filter(c=>c.deck===currentDeck);
+  const tags = [...new Set(cards.flatMap(c=>c.tags))];
+  const el = document.getElementById('chips');
+  el.innerHTML='';
+  const items = [[null,'전체',false],['★','★ 핵심',true],...tags.map(t=>[t,t,false])];
+  items.forEach(([val,label,hot])=>{
+    const b = document.createElement('button');
+    b.className='chip'+(hot?' hotchip':'');
+    b.textContent=label;
+    b.setAttribute('aria-pressed', currentTag===val);
+    b.onclick=()=>{ currentTag=val; renderChips(); buildQueue(); showCard(); };
+    el.appendChild(b);
+  });
+}
+function getPool(){
+  let pool = allCards.filter(c=>c.deck===currentDeck);
+  if(currentTag==='★') pool=pool.filter(c=>c.front.startsWith('★'));
+  else if(currentTag) pool=pool.filter(c=>c.tags.includes(currentTag));
+  return pool;
+}
+function buildQueue(){
+  const state=loadState();
+  const pool=getPool();
+  queue=pool.filter(c=>isDue(state,c.id));
+  queue.sort(()=>Math.random()-0.5);
+}
+function updateStats(){
+  const state=loadState();
+  const pool=getPool();
+  const total=pool.length;
+  const due=pool.filter(c=>isDue(state,c.id)).length;
+  document.getElementById('remaining').textContent=queue.length;
+  document.getElementById('statsText').textContent=`총 ${total}장`;
+  const pct=total>0?((total-due)/total*100):0;
+  document.getElementById('progressBar').style.width=pct+'%';
+}
+function showCard(){
+  const card=document.getElementById('card');
+  const buttons=document.getElementById('gradeButtons');
+  const empty=document.getElementById('emptyMsg');
+  const stage=document.getElementById('stage');
+  card.classList.remove('flip');
+  buttons.style.display='none';
 
-function showNext() {
-  const card = document.getElementById('card');
-  const buttons = document.getElementById('buttons');
-  const empty = document.getElementById('empty');
-  card.classList.remove('flipped');
-
-  if (queue.length === 0) {
-    card.style.display = 'none';
-    buttons.style.display = 'none';
-    empty.style.display = 'block';
+  if(queue.length===0){
+    stage.style.display='none';
+    empty.style.display='block';
+    currentCard=null;
+    updateStats();
     return;
   }
+  stage.style.display='flex';
+  empty.style.display='none';
+  currentCard=queue.shift();
 
-  card.style.display = 'flex';
-  empty.style.display = 'none';
-  buttons.style.display = 'none';
-  currentCard = queue.shift();
+  const tag=currentCard.tags[0]||'';
+  const hot=currentCard.front.startsWith('★');
+  const tagHtml=hot?`${tag} <span class="hotmark">★</span>`:tag;
+  document.getElementById('tagF').innerHTML=tagHtml;
+  document.getElementById('tagB').innerHTML=tagHtml;
+  document.getElementById('qText').textContent=currentCard.front;
 
-  const tags = (currentCard.tags || []).map(t => `<span class="tag">${t}</span>`).join(' ');
-  document.getElementById('front').innerHTML =
-    `<span class="card-label">Q · ${currentCard.deck}</span><div>${currentCard.front}<br/>${tags}</div>`;
-  document.getElementById('back').innerHTML =
-    `<span class="card-label">A</span><div>${currentCard.back}</div>`;
+  const lines=currentCard.back.split('§');
+  document.getElementById('aList').innerHTML=lines.map(line=>{
+    const arrow=line.startsWith('→');
+    const html=esc(line).replace(/`([^`]+)`/g,'<code>$1</code>');
+    return `<li class="${arrow?'star':''}">${html}</li>`;
+  }).join('');
+
+  updateStats();
 }
-
-function flip() {
-  const card = document.getElementById('card');
-  if (!card.classList.contains('flipped')) {
-    card.classList.add('flipped');
-    document.getElementById('buttons').style.display = 'flex';
+function flipCard(){
+  const card=document.getElementById('card');
+  card.classList.toggle('flip');
+  if(card.classList.contains('flip')){
+    document.getElementById('gradeButtons').style.display='flex';
+  } else {
+    document.getElementById('gradeButtons').style.display='none';
   }
 }
-
-function answer(grade) {
-  if (!currentCard) return;
-  const state = loadState();
-  const prev = getCardState(state, currentCard.id);
-  state[currentCard.id] = sm2(prev, grade);
+function answer(grade){
+  if(!currentCard) return;
+  const state=loadState();
+  const prev=getCardState(state,currentCard.id);
+  state[currentCard.id]=sm2(prev,grade);
   saveState(state);
-
-  if (grade < 3) queue.push(currentCard); // again → 큐 뒤로
-  updateStats();
-  showNext();
+  if(grade<3) queue.push(currentCard);
+  showCard();
 }
 
-init();
+// ── Events ──
+document.getElementById('card').onclick=flipCard;
+document.getElementById('card').onkeydown=e=>{
+  if(e.key===' '||e.key==='Enter'){e.preventDefault();flipCard();}
+};
+document.addEventListener('keydown',e=>{
+  if(!currentDeck) return;
+  if(e.key===' '||e.key==='Enter'){e.preventDefault();flipCard();}
+  if(document.getElementById('card').classList.contains('flip')){
+    if(e.key==='1') answer(0);
+    if(e.key==='2') answer(3);
+    if(e.key==='3') answer(4);
+    if(e.key==='4') answer(5);
+  }
+});
+
+// ── Init ──
+(async()=>{
+  const resp=await fetch('cards.json');
+  allCards=await resp.json();
+  await syncFromGist();
+  showHome();
+})();
 </script>
 </body>
 </html>

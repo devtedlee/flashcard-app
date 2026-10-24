@@ -442,7 +442,7 @@ document.addEventListener('keydown',e=>{
 
 // ── Init ──
 (async()=>{
-  const resp=await fetch('cards.json');
+  const resp=await fetch('cards.json',{cache:'no-cache'});
   allCards=await resp.json();
   await syncFromGist();
   showHome();
